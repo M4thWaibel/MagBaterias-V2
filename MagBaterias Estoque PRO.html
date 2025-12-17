@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MagBaterias - Sistema de Estoque</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --color-primary: #0891b2;
+            --color-primary-dark: #0e7490;
+            --color-secondary: #06b6d4;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-error: #ef4444;
+            --color-bg: #f8fafc;
+            --color-surface: #ffffff;
+            --color-text: #1e293b;
+            --color-text-light: #64748b;
+            --color-border: #e2e8f0;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--spacing-md);
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: white;
+            padding: var(--spacing-lg) var(--spacing-md);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--spacing-lg);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        header .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: var(--spacing-md);
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: var(--color-surface);
+            color: var(--color-text);
+            box-shadow: var(--shadow-sm);
+        }
+
+        nav button.active {
+            background: var(--color-primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        nav button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Main Layout */
+        .main {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-border);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .card-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+            font-size: 14px;
+            color: var(--color-text);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: var(--color-warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-danger {
+            background: var(--color-error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: var(--color-surface);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-bg);
+        }
+
+        .btn-sm {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 12px;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--spacing-md);
+        }
+
+        thead {
+            background: var(--color-bg);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        th {
+            padding: var(--spacing-md);
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: var(--color-text-light);
+        }
+
+        td {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        tbody tr:hover {
+            background: var(--color-bg);
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, var(--color-warning) 0%, #fbbf24 100%);
+        }
+
+        .stat-card.danger {
+            background: linear-gradient(135deg, var(--color-error) 0%, #f87171 100%);
+        }
+
+        .stat-card.success {
+            background: linear-gradient(135deg, var(--color-success) 0%, #6ee7b7 100%);
+        }
+
+        .stat-card h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            opacity: 0.9;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--color-text-light);
+        }
+
+        .close-btn:hover {
+            color: var(--color-text);
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--color-success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--color-warning);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--color-error);
+        }
+
+        .badge-info {
+            background: rgba(8, 145, 178, 0.1);
+            color: var(--color-primary);
+        }
+
+        /* Alert */
+        .alert {
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            border-left: 4px solid;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--color-success);
+            color: var(--color-success);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--color-error);
+            color: var(--color-error);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--color-warning);
+            color: var(--color-warning);
+        }
+
+        /* Cart Preview */
+        .cart-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .cart-items {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .cart-summary {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            height: fit-content;
+            box-shadow: var(--shadow-md);
+        }
+
+        .cart-summary h3 {
+            margin-bottom: var(--spacing-md);
+            font-size: 18px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-sm);
+            font-size: 14px;
+        }
+
+        .summary-row.total {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: var(--spacing-md);
+            margin-top: var(--spacing-md);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--color-text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-container {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            header .header-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-sm);
+            }
+
+            nav {
+                flex-direction: column;
+            }
+
+            nav button {
+                width: 100%;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: var(--spacing-sm);
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            header, nav, .btn, .close-btn, .cart-summary {
+                display: none;
+            }
+
+            body {
+                background: white;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
+
+        .customer-info {
+            background: var(--color-bg);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .product-select-container {
+            position: relative;
+        }
+
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .product-item {
+            background: var(--color-bg);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .product-item:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .product-item-name {
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .product-item-price {
+            color: var(--color-primary);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .product-item-stock {
+            font-size: 12px;
+            color: var(--color-text-light);
+            margin-top: var(--spacing-xs);
+        }
+
+        .inventory-filters {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .inventory-filters input,
+        .inventory-filters select {
+            flex: 1;
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🔋 MagBaterias - Sistema de Estoque PRO</h1>
+        <div class="header-info">
+            <span>Versão 2.0 - Completo e Moderno</span>
+            <span id="current-date"></span>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav id="navigation">
+            <button class="nav-btn active" data-section="dashboard">📊 Dashboard</button>
+            <button class="nav-btn" data-section="inventory">📦 Estoque</button>
+            <button class="nav-btn" data-section="sales">🛒 Vendas</button>
+            <button class="nav-btn" data-section="history">📋 Histórico</button>
+            <button class="nav-btn" data-section="reports">📈 Relatórios</button>
+        </nav>
+
+        <div class="main">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>📊 Dashboard</h2>
+                    </div>
+
+                    <div class="stats-grid" id="stats-grid">
+                        <div class="stat-card">
+                            <h3>Produtos em Estoque</h3>
+                            <div class="value" id="stat-products">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Quantidade Total</h3>
+                            <div class="value" id="stat-quantity">0</div>
+                        </div>
+                        <div class="stat-card success">
+                            <h3>Vendas do Mês</h3>
+                            <div class="value" id="stat-sales">0</div>
+                        </div>
+                        <div class="stat-card warning">
+                            <h3>Produtos Baixos</h3>
+                            <div class="value" id="stat-low-stock">0</div>
+                        </div>
+                        <div class="stat-card success">
+                            <h3>Faturamento Mês</h3>
+                            <div class="value" id="stat-revenue">R$ 0</div>
+                        </div>
+                        <div class="stat-card danger">
+                            <h3>Produtos Críticos</h3>
+                            <div class="value" id="stat-critical">0</div>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--color-bg); padding: var(--spacing-lg); border-radius: var(--radius-md);">
+                        <h3 style="margin-bottom: var(--spacing-md);">📦 Produtos com Baixo Estoque</h3>
+                        <table id="low-stock-table">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Estoque</th>
+                                    <th>Mínimo</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="low-stock-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Inventory Section -->
+            <section id="inventory" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>📦 Gerenciamento de Estoque</h2>
+                        <button class="btn btn-primary" id="add-product-btn">+ Adicionar Produto</button>
+                    </div>
+
+                    <div class="inventory-filters">
+                        <input type="text" id="search-inventory" placeholder="🔍 Buscar produto...">
+                        <select id="filter-category">
+                            <option value="">Todas as Categorias</option>
+                            <option value="Automotivo">Automotivo</option>
+                            <option value="Industrial">Industrial</option>
+                            <option value="Doméstico">Doméstico</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+
+                    <div id="alert-container"></div>
+
+                    <table id="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Produto</th>
+                                <th>Categoria</th>
+                                <th>Preço</th>
+                                <th>Estoque</th>
+                                <th>Mínimo</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-body">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Sales Section -->
+            <section id="sales" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>🛒 Nova Venda</h2>
+                    </div>
+
+                    <div class="customer-info">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nome do Cliente</label>
+                                <input type="text" id="customer-name" placeholder="Digite o nome do cliente">
+                            </div>
+                            <div class="form-group">
+                                <label>CPF/CNPJ</label>
+                                <input type="text" id="customer-document" placeholder="00.000.000/0000-00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Selecione um Produto</label>
+                        <select id="product-select">
+                            <option value="">-- Selecione um produto --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Quantidade</label>
+                            <input type="number" id="quantity-input" min="1" value="1">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary btn-full" id="add-to-cart-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+
+                    <div class="cart-container">
+                        <div class="cart-items">
+                            <h3 style="margin-bottom: var(--spacing-md);">🛒 Itens da Venda</h3>
+                            <table id="cart-table">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Qty</th>
+                                        <th>Preço Unit.</th>
+                                        <th>Subtotal</th>
+                                        <th>Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cart-body">
+                                </tbody>
+                            </table>
+                            <div id="empty-cart-message" class="empty-state" style="display: none;">
+                                <div class="empty-state-icon">🛒</div>
+                                <p>Nenhum item no carrinho</p>
+                            </div>
+                        </div>
+
+                        <div class="cart-summary">
+                            <h3>Resumo da Venda</h3>
+                            <div class="summary-row">
+                                <span>Subtotal:</span>
+                                <span id="summary-subtotal">R$ 0,00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Desconto (%):</span>
+                                <input type="number" id="discount-input" min="0" max="100" value="0" style="width: 80px; padding: 4px;">
+                            </div>
+                            <div class="summary-row">
+                                <span>Desconto (R$):</span>
+                                <span id="summary-discount">R$ 0,00</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>Total:</span>
+                                <span id="summary-total">R$ 0,00</span>
+                            </div>
+                            <button class="btn btn-success btn-full" id="finalize-sale-btn" style="margin-top: var(--spacing-md);">✓ Finalizar Venda</button>
+                            <button class="btn btn-secondary btn-full" id="cancel-sale-btn" style="margin-top: var(--spacing-sm);">Limpar Carrinho</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section id="history" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>📋 Histórico de Vendas</h2>
+                        <button class="btn btn-secondary" id="export-history-btn">📥 Exportar CSV</button>
+                    </div>
+
+                    <div class="inventory-filters">
+                        <input type="date" id="filter-date-start">
+                        <input type="date" id="filter-date-end">
+                        <input type="text" id="search-history" placeholder="🔍 Buscar cliente...">
+                        <button class="btn btn-secondary" id="filter-history-btn">Filtrar</button>
+                    </div>
+
+                    <table id="history-table">
+                        <thead>
+                            <tr>
+                                <th>ID Venda</th>
+                                <th>Data</th>
+                                <th>Cliente</th>
+                                <th>Produtos</th>
+                                <th>Total</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-body">
+                        </tbody>
+                    </table>
+                    <div id="empty-history-message" class="empty-state" style="display: none;">
+                        <div class="empty-state-icon">📋</div>
+                        <p>Nenhuma venda registrada</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>📈 Relatórios</h2>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Período</label>
+                        <div class="form-row">
+                            <input type="date" id="report-start-date">
+                            <input type="date" id="report-end-date">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <div style="background: linear-gradient(135deg, #10b981 0%, #6ee7b7 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg);">
+                            <div style="font-size: 12px; opacity: 0.9; margin-bottom: var(--spacing-sm);">Total de Vendas</div>
+                            <div style="font-size: 24px; font-weight: 700;" id="report-total-sales">0</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg);">
+                            <div style="font-size: 12px; opacity: 0.9; margin-bottom: var(--spacing-sm);">Receita Total</div>
+                            <div style="font-size: 24px; font-weight: 700;" id="report-total-revenue">R$ 0,00</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; padding: var(--spacing-lg); border-radius: var(--radius-lg);">
+                            <div style="font-size: 12px; opacity: 0.9; margin-bottom: var(--spacing-sm);">Ticket Médio</div>
+                            <div style="font-size: 24px; font-weight: 700;" id="report-avg-ticket">R$ 0,00</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md);">Produtos Mais Vendidos</h3>
+                    <table id="report-table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Quantidade Vendida</th>
+                                <th>Receita</th>
+                                <th>Ticket Médio</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-body">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal for Add/Edit Product -->
+    <div class="modal" id="product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Adicionar Produto</h3>
+                <button class="close-btn" onclick="closeModal('product-modal')">×</button>
+            </div>
+            <form id="product-form">
+                <div class="form-group">
+                    <label>Nome do Produto</label>
+                    <input type="text" id="form-product-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="form-product-category" required>
+                        <option value="">-- Selecione --</option>
+                        <option value="Automotivo">Automotivo</option>
+                        <option value="Industrial">Industrial</option>
+                        <option value="Doméstico">Doméstico</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Preço (R$)</label>
+                        <input type="number" id="form-product-price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantidade em Estoque</label>
+                        <input type="number" id="form-product-quantity" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Quantidade Mínima</label>
+                    <input type="number" id="form-product-minimum" required>
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea id="form-product-description" rows="3" placeholder="Descrição do produto..."></textarea>
+                </div>
+                <div style="display: flex; gap: var(--spacing-md);">
+                    <button type="submit" class="btn btn-primary btn-full">Salvar Produto</button>
+                    <button type="button" class="btn btn-secondary btn-full" onclick="closeModal('product-modal')">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Sale Details -->
+    <div class="modal" id="sale-details-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detalhes da Venda</h3>
+                <button class="close-btn" onclick="closeModal('sale-details-modal')">×</button>
+            </div>
+            <div id="sale-details-content"></div>
+            <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
+                <button class="btn btn-primary btn-full" onclick="generatePDF()">📄 Gerar PDF da Nota</button>
+                <button class="btn btn-secondary btn-full" onclick="closeModal('sale-details-modal')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let products = JSON.parse(localStorage.getItem('magbaterias-products')) || [
+            { id: 1, name: 'Bateria 60Ah Automotiva', category: 'Automotivo', price: 350.00, quantity: 15, minimum: 5, description: 'Bateria 60Ah para automóveis' },
+            { id: 2, name: 'Bateria 100Ah Industrial', category: 'Industrial', price: 850.00, quantity: 8, minimum: 3, description: 'Bateria 100Ah para uso industrial' },
+            { id: 3, name: 'Bateria Doméstica 12V', category: 'Doméstico', price: 450.00, quantity: 20, minimum: 5, description: 'Bateria 12V para uso doméstico' }
+        ];
+
+        let sales = JSON.parse(localStorage.getItem('magbaterias-sales')) || [];
+        let cartItems = [];
+        let editingProductId = null;
+
+        // Initialize
+        function init() {
+            updateDate();
+            renderInventory();
+            renderProductSelect();
+            updateDashboard();
+            setupEventListeners();
+            loadSalesHistory();
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                const section = e.target.dataset.section;
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(section).classList.add('active');
+            });
+        });
+
+        // Update current date
+        function updateDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').textContent = new Date().toLocaleDateString('pt-BR', options);
+        }
+
+        // Dashboard
+        function updateDashboard() {
+            const totalProducts = products.length;
+            const totalQuantity = products.reduce((sum, p) => sum + p.quantity, 0);
+            const lowStockCount = products.filter(p => p.quantity <= p.minimum).length;
+            const criticalCount = products.filter(p => p.quantity === 0).length;
+
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const monthSales = sales.filter(s => {
+                const saleDate = new Date(s.date);
+                return saleDate.getMonth() === currentMonth && saleDate.getFullYear() === currentYear;
+            });
+
+            const totalRevenue = monthSales.reduce((sum, s) => sum + (s.total || 0), 0);
+
+            document.getElementById('stat-products').textContent = totalProducts;
+            document.getElementById('stat-quantity').textContent = totalQuantity;
+            document.getElementById('stat-sales').textContent = monthSales.length;
+            document.getElementById('stat-low-stock').textContent = lowStockCount;
+            document.getElementById('stat-revenue').textContent = 'R$ ' + totalRevenue.toFixed(2).replace('.', ',');
+            document.getElementById('stat-critical').textContent = criticalCount;
+
+            // Low stock table
+            const lowStockProducts = products.filter(p => p.quantity <= p.minimum);
+            const tbody = document.getElementById('low-stock-body');
+            tbody.innerHTML = '';
+
+            if (lowStockProducts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--color-text-light);">Todos os produtos com estoque OK</td></tr>';
+            } else {
+                lowStockProducts.forEach(p => {
+                    const status = p.quantity === 0 ? '🔴 Crítico' : '🟡 Baixo';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${p.name}</td>
+                            <td>${p.quantity}</td>
+                            <td>${p.minimum}</td>
+                            <td><span class="badge ${p.quantity === 0 ? 'badge-danger' : 'badge-warning'}">${status}</span></td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        // Inventory Management
+        function renderInventory() {
+            const tbody = document.getElementById('inventory-body');
+            tbody.innerHTML = '';
+
+            products.forEach(p => {
+                const status = p.quantity === 0 ? '🔴 Sem Estoque' : (p.quantity <= p.minimum ? '🟡 Baixo' : '🟢 OK');
+                const statusClass = p.quantity === 0 ? 'danger' : (p.quantity <= p.minimum ? 'warning' : 'success');
+                tbody.innerHTML += `
+                    <tr>
+                        <td>#${p.id}</td>
+                        <td>${p.name}</td>
+                        <td>${p.category}</td>
+                        <td>R$ ${p.price.toFixed(2).replace('.', ',')}</td>
+                        <td><strong>${p.quantity}</strong></td>
+                        <td>${p.minimum}</td>
+                        <td><span class="badge badge-${statusClass}">${status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" onclick="editProduct(${p.id})">✏️ Editar</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.id})">🗑️ Deletar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            saveToStorage();
+        }
+
+        function renderProductSelect() {
+            const select = document.getElementById('product-select');
+            select.innerHTML = '<option value="">-- Selecione um produto --</option>';
+
+            const availableProducts = products.filter(p => p.quantity > 0);
+            availableProducts.forEach(p => {
+                select.innerHTML += `<option value="${p.id}">${p.name} (${p.quantity} disp.) - R$ ${p.price.toFixed(2).replace('.', ',')}</option>`;
+            });
+        }
+
+        // Product Modal
+        document.getElementById('add-product-btn').addEventListener('click', () => {
+            editingProductId = null;
+            document.getElementById('modal-title').textContent = 'Adicionar Produto';
+            document.getElementById('product-form').reset();
+            openModal('product-modal');
+        });
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            editingProductId = id;
+            document.getElementById('modal-title').textContent = 'Editar Produto';
+            document.getElementById('form-product-name').value = product.name;
+            document.getElementById('form-product-category').value = product.category;
+            document.getElementById('form-product-price').value = product.price;
+            document.getElementById('form-product-quantity').value = product.quantity;
+            document.getElementById('form-product-minimum').value = product.minimum;
+            document.getElementById('form-product-description').value = product.description || '';
+
+            openModal('product-modal');
+        }
+
+        function deleteProduct(id) {
+            if (!confirm('Tem certeza que deseja deletar este produto?')) return;
+            products = products.filter(p => p.id !== id);
+            renderInventory();
+            renderProductSelect();
+            updateDashboard();
+        }
+
+        document.getElementById('product-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const formData = {
+                name: document.getElementById('form-product-name').value,
+                category: document.getElementById('form-product-category').value,
+                price: parseFloat(document.getElementById('form-product-price').value),
+                quantity: parseInt(document.getElementById('form-product-quantity').value),
+                minimum: parseInt(document.getElementById('form-product-minimum').value),
+                description: document.getElementById('form-product-description').value
+            };
+
+            if (editingProductId) {
+                const product = products.find(p => p.id === editingProductId);
+                Object.assign(product, formData);
+            } else {
+                const newId = Math.max(...products.map(p => p.id), 0) + 1;
+                products.push({ id: newId, ...formData });
+            }
+
+            renderInventory();
+            renderProductSelect();
+            updateDashboard();
+            closeModal('product-modal');
+            showAlert('Produto salvo com sucesso!', 'success');
+        });
+
+        // Shopping Cart
+        document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+            const productId = parseInt(document.getElementById('product-select').value);
+            const quantity = parseInt(document.getElementById('quantity-input').value);
+
+            if (!productId || !quantity) {
+                showAlert('Selecione um produto e quantidade válida', 'warning');
+                return;
+            }
+
+            const product = products.find(p => p.id === productId);
+            if (!product || product.quantity < quantity) {
+                showAlert('Quantidade insuficiente em estoque', 'error');
+                return;
+            }
+
+            const existingItem = cartItems.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cartItems.push({
+                    id: productId,
+                    name: product.name,
+                    price: product.price,
+                    quantity: quantity
+                });
+            }
+
+            document.getElementById('product-select').value = '';
+            document.getElementById('quantity-input').value = '1';
+            renderCart();
+            showAlert('Produto adicionado ao carrinho!', 'success');
+        });
+
+        function renderCart() {
+            const tbody = document.getElementById('cart-body');
+            const emptyMsg = document.getElementById('empty-cart-message');
+
+            tbody.innerHTML = '';
+
+            if (cartItems.length === 0) {
+                emptyMsg.style.display = 'block';
+            } else {
+                emptyMsg.style.display = 'none';
+                cartItems.forEach((item, index) => {
+                    const subtotal = item.price * item.quantity;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${item.name}</td>
+                            <td>${item.quantity}</td>
+                            <td>R$ ${item.price.toFixed(2).replace('.', ',')}</td>
+                            <td>R$ ${subtotal.toFixed(2).replace('.', ',')}</td>
+                            <td><button class="btn btn-sm btn-danger" onclick="removeFromCart(${index})">Remover</button></td>
+                        </tr>
+                    `;
+                });
+            }
+
+            updateCartSummary();
+        }
+
+        function removeFromCart(index) {
+            cartItems.splice(index, 1);
+            renderCart();
+        }
+
+        document.getElementById('cancel-sale-btn').addEventListener('click', () => {
+            if (confirm('Limpar todo o carrinho?')) {
+                cartItems = [];
+                renderCart();
+            }
+        });
+
+        function updateCartSummary() {
+            const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const discountPercent = parseFloat(document.getElementById('discount-input').value) || 0;
+            const discountValue = subtotal * (discountPercent / 100);
+            const total = subtotal - discountValue;
+
+            document.getElementById('summary-subtotal').textContent = 'R$ ' + subtotal.toFixed(2).replace('.', ',');
+            document.getElementById('summary-discount').textContent = 'R$ ' + discountValue.toFixed(2).replace('.', ',');
+            document.getElementById('summary-total').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+        }
+
+        document.getElementById('discount-input').addEventListener('change', updateCartSummary);
+
+        // Finalize Sale
+        document.getElementById('finalize-sale-btn').addEventListener('click', () => {
+            const customerName = document.getElementById('customer-name').value.trim();
+            const customerDocument = document.getElementById('customer-document').value.trim();
+
+            if (!customerName) {
+                showAlert('Digite o nome do cliente', 'warning');
+                return;
+            }
+
+            if (cartItems.length === 0) {
+                showAlert('Adicione itens ao carrinho', 'warning');
+                return;
+            }
+
+            const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const discountPercent = parseFloat(document.getElementById('discount-input').value) || 0;
+            const discountValue = subtotal * (discountPercent / 100);
+            const total = subtotal - discountValue;
+
+            const saleId = 'VND-' + Date.now();
+            const sale = {
+                id: saleId,
+                date: new Date().toISOString(),
+                customer: customerName,
+                document: customerDocument,
+                items: [...cartItems],
+                subtotal: subtotal,
+                discount: discountValue,
+                total: total
+            };
+
+            // Update inventory
+            cartItems.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                if (product) {
+                    product.quantity -= item.quantity;
+                }
+            });
+
+            sales.push(sale);
+            saveToStorage();
+            showSaleDetails(sale);
+            clearSale();
+            updateDashboard();
+            renderInventory();
+            renderProductSelect();
+        });
+
+        function clearSale() {
+            cartItems = [];
+            document.getElementById('customer-name').value = '';
+            document.getElementById('customer-document').value = '';
+            document.getElementById('discount-input').value = '0';
+            renderCart();
+        }
+
+        function showSaleDetails(sale) {
+            const content = document.getElementById('sale-details-content');
+            const itemsHtml = sale.items.map(item => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>R$ ${item.price.toFixed(2).replace('.', ',')}</td>
+                    <td>R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}</td>
+                </tr>
+            `).join('');
+
+            content.innerHTML = `
+                <div style="background: var(--color-bg); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">
+                    <p><strong>ID da Venda:</strong> ${sale.id}</p>
+                    <p><strong>Cliente:</strong> ${sale.customer}</p>
+                    ${sale.document ? `<p><strong>CPF/CNPJ:</strong> ${sale.document}</p>` : ''}
+                    <p><strong>Data/Hora:</strong> ${new Date(sale.date).toLocaleString('pt-BR')}</p>
+                </div>
+                <table style="width: 100%; margin-bottom: var(--spacing-md);">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding: var(--spacing-sm);">Produto</th>
+                            <th style="text-align: right; padding: var(--spacing-sm);">Qty</th>
+                            <th style="text-align: right; padding: var(--spacing-sm);">Preço</th>
+                            <th style="text-align: right; padding: var(--spacing-sm);">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHtml}
+                    </tbody>
+                </table>
+                <div style="border-top: 2px solid var(--color-border); padding-top: var(--spacing-md); text-align: right;">
+                    <p style="margin: var(--spacing-sm) 0;"><strong>Subtotal:</strong> R$ ${sale.subtotal.toFixed(2).replace('.', ',')}</p>
+                    ${sale.discount > 0 ? `<p style="margin: var(--spacing-sm) 0;"><strong>Desconto:</strong> -R$ ${sale.discount.toFixed(2).replace('.', ',')}</p>` : ''}
+                    <p style="margin: var(--spacing-sm) 0; font-size: 18px;"><strong>Total: R$ ${sale.total.toFixed(2).replace('.', ',')}</strong></p>
+                </div>
+            `;
+
+            window.currentSale = sale;
+            openModal('sale-details-modal');
+        }
+
+        // Sales History
+        function loadSalesHistory() {
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('history-body');
+            const emptyMsg = document.getElementById('empty-history-message');
+
+            tbody.innerHTML = '';
+
+            if (sales.length === 0) {
+                emptyMsg.style.display = 'block';
+            } else {
+                emptyMsg.style.display = 'none';
+                sales.forEach(sale => {
+                    const itemCount = sale.items.length;
+                    const itemsText = sale.items.map(i => i.name).join(', ');
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${sale.id}</td>
+                            <td>${new Date(sale.date).toLocaleString('pt-BR')}</td>
+                            <td>${sale.customer}</td>
+                            <td title="${itemsText}">${itemCount} item(ns)</td>
+                            <td>R$ ${sale.total.toFixed(2).replace('.', ',')}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="viewSaleDetail('${sale.id}')">👁️ Ver</button>
+                                <button class="btn btn-sm btn-secondary" onclick="generateInvoicePDF('${sale.id}')">📄 PDF</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        function viewSaleDetail(saleId) {
+            const sale = sales.find(s => s.id === saleId);
+            if (sale) {
+                showSaleDetails(sale);
+            }
+        }
+
+        // PDF Generation
+        function generateInvoicePDF(saleId) {
+            const sale = sales.find(s => s.id === saleId);
+            if (!sale) return;
+
+            window.currentSale = sale;
+            generatePDF();
+        }
+
+        function generatePDF() {
+            const sale = window.currentSale;
+            if (!sale) return;
+
+            const element = document.createElement('div');
+            element.style.padding = '20px';
+            element.style.fontFamily = 'Arial, sans-serif';
+            element.style.backgroundColor = 'white';
+
+            const date = new Date(sale.date);
+            const itemsHtml = sale.items.map(item => `
+                <tr>
+                    <td style="border-bottom: 1px solid #ddd; padding: 10px; text-align: left;">${item.name}</td>
+                    <td style="border-bottom: 1px solid #ddd; padding: 10px; text-align: center;">${item.quantity}</td>
+                    <td style="border-bottom: 1px solid #ddd; padding: 10px; text-align: right;">R$ ${item.price.toFixed(2).replace('.', ',')}</td>
+                    <td style="border-bottom: 1px solid #ddd; padding: 10px; text-align: right;">R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}</td>
+                </tr>
+            `).join('');
+
+            element.innerHTML = `
+                <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #0891b2; padding-bottom: 20px;">
+                    <h1 style="margin: 0; color: #0891b2;">🔋 MagBaterias</h1>
+                    <p style="margin: 5px 0; color: #666;">NOTA FISCAL ELETRÔNICA</p>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <p style="margin: 5px 0;"><strong>ID da Venda:</strong> ${sale.id}</p>
+                    <p style="margin: 5px 0;"><strong>Data:</strong> ${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR')}</p>
+                </div>
+
+                <div style="margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; background: #f9f9f9;">
+                    <h3 style="margin: 0 0 10px 0; border-bottom: 1px solid #ddd; padding-bottom: 10px;">CLIENTE</h3>
+                    <p style="margin: 5px 0;"><strong>Nome:</strong> ${sale.customer}</p>
+                    ${sale.document ? `<p style="margin: 5px 0;"><strong>CPF/CNPJ:</strong> ${sale.document}</p>` : ''}
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <thead>
+                        <tr style="background: #f0f0f0; border-bottom: 2px solid #0891b2;">
+                            <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Descrição do Produto</th>
+                            <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">Quantidade</th>
+                            <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Valor Unitário</th>
+                            <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Valor Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHtml}
+                    </tbody>
+                </table>
+
+                <div style="text-align: right; border-top: 2px solid #0891b2; padding-top: 15px;">
+                    <p style="margin: 5px 0; font-size: 16px;"><strong>Subtotal:</strong> R$ ${sale.subtotal.toFixed(2).replace('.', ',')}</p>
+                    ${sale.discount > 0 ? `<p style="margin: 5px 0; font-size: 16px;"><strong>Desconto:</strong> -R$ ${sale.discount.toFixed(2).replace('.', ',')}</p>` : ''}
+                    <p style="margin: 10px 0; font-size: 20px; color: #0891b2; font-weight: bold;">TOTAL: R$ ${sale.total.toFixed(2).replace('.', ',')}</p>
+                </div>
+
+                <div style="margin-top: 30px; text-align: center; border-top: 1px solid #ddd; padding-top: 20px; color: #666; font-size: 12px;">
+                    <p>Obrigado pela compra!</p>
+                    <p>MagBaterias - Sistema de Gestão de Estoque v2.0</p>
+                    <p>Emitido em ${new Date().toLocaleString('pt-BR')}</p>
+                </div>
+            `;
+
+            const options = {
+                margin: 10,
+                filename: `nfe-magbaterias-${sale.id}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+
+            html2pdf().set(options).from(element).save();
+        }
+
+        // Export CSV
+        document.getElementById('export-history-btn').addEventListener('click', () => {
+            if (sales.length === 0) {
+                showAlert('Nenhuma venda para exportar', 'warning');
+                return;
+            }
+
+            let csv = 'ID Venda,Data,Cliente,CPF/CNPJ,Quantidade de Produtos,Subtotal,Desconto,Total\n';
+
+            sales.forEach(sale => {
+                csv += `"${sale.id}","${new Date(sale.date).toLocaleString('pt-BR')}","${sale.customer}","${sale.document}","${sale.items.length}","R$ ${sale.subtotal.toFixed(2)}","R$ ${sale.discount.toFixed(2)}","R$ ${sale.total.toFixed(2)}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'magbaterias-vendas-' + new Date().toISOString().split('T')[0] + '.csv';
+            link.click();
+        });
+
+        // Filter History
+        document.getElementById('filter-history-btn').addEventListener('click', () => {
+            const startDate = new Date(document.getElementById('filter-date-start').value);
+            const endDate = new Date(document.getElementById('filter-date-end').value);
+            const searchTerm = document.getElementById('search-history').value.toLowerCase();
+
+            const filtered = sales.filter(sale => {
+                const saleDate = new Date(sale.date);
+                const matchDate = (!document.getElementById('filter-date-start').value || saleDate >= startDate) &&
+                                (!document.getElementById('filter-date-end').value || saleDate <= endDate);
+                const matchSearch = !searchTerm || sale.customer.toLowerCase().includes(searchTerm);
+                return matchDate && matchSearch;
+            });
+
+            const tbody = document.getElementById('history-body');
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                document.getElementById('empty-history-message').style.display = 'block';
+            } else {
+                document.getElementById('empty-history-message').style.display = 'none';
+                filtered.forEach(sale => {
+                    const itemCount = sale.items.length;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${sale.id}</td>
+                            <td>${new Date(sale.date).toLocaleString('pt-BR')}</td>
+                            <td>${sale.customer}</td>
+                            <td>${itemCount} item(ns)</td>
+                            <td>R$ ${sale.total.toFixed(2).replace('.', ',')}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="viewSaleDetail('${sale.id}')">👝 Ver</button>
+                                <button class="btn btn-sm btn-secondary" onclick="generateInvoicePDF('${sale.id}')">📄 PDF</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        });
+
+        // Reports
+        function updateReports() {
+            const startDate = new Date(document.getElementById('report-start-date').value);
+            const endDate = new Date(document.getElementById('report-end-date').value);
+
+            let filteredSales = sales;
+
+            if (document.getElementById('report-start-date').value) {
+                filteredSales = filteredSales.filter(s => new Date(s.date) >= startDate);
+            }
+
+            if (document.getElementById('report-end-date').value) {
+                filteredSales = filteredSales.filter(s => new Date(s.date) <= endDate);
+            }
+
+            const totalSales = filteredSales.length;
+            const totalRevenue = filteredSales.reduce((sum, s) => sum + s.total, 0);
+            const avgTicket = totalSales > 0 ? totalRevenue / totalSales : 0;
+
+            document.getElementById('report-total-sales').textContent = totalSales;
+            document.getElementById('report-total-revenue').textContent = 'R$ ' + totalRevenue.toFixed(2).replace('.', ',');
+            document.getElementById('report-avg-ticket').textContent = 'R$ ' + avgTicket.toFixed(2).replace('.', ',');
+
+            // Products sold
+            const productStats = {};
+            filteredSales.forEach(sale => {
+                sale.items.forEach(item => {
+                    if (!productStats[item.id]) {
+                        productStats[item.id] = { name: item.name, quantity: 0, revenue: 0 };
+                    }
+                    productStats[item.id].quantity += item.quantity;
+                    productStats[item.id].revenue += item.price * item.quantity;
+                });
+            });
+
+            const reportBody = document.getElementById('report-body');
+            reportBody.innerHTML = '';
+
+            Object.values(productStats).sort((a, b) => b.quantity - a.quantity).forEach(stat => {
+                const avgPrice = stat.quantity > 0 ? stat.revenue / stat.quantity : 0;
+                reportBody.innerHTML += `
+                    <tr>
+                        <td>${stat.name}</td>
+                        <td>${stat.quantity}</td>
+                        <td>R$ ${stat.revenue.toFixed(2).replace('.', ',')}</td>
+                        <td>R$ ${avgPrice.toFixed(2).replace('.', ',')}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        document.getElementById('report-start-date').addEventListener('change', updateReports);
+        document.getElementById('report-end-date').addEventListener('change', updateReports);
+
+        // Search and Filter Inventory
+        document.getElementById('search-inventory').addEventListener('keyup', filterInventory);
+        document.getElementById('filter-category').addEventListener('change', filterInventory);
+
+        function filterInventory() {
+            const searchTerm = document.getElementById('search-inventory').value.toLowerCase();
+            const category = document.getElementById('filter-category').value;
+
+            const tbody = document.getElementById('inventory-body');
+            tbody.innerHTML = '';
+
+            const filtered = products.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(searchTerm);
+                const matchCategory = !category || p.category === category;
+                return matchSearch && matchCategory;
+            });
+
+            filtered.forEach(p => {
+                const status = p.quantity === 0 ? '🔴 Sem Estoque' : (p.quantity <= p.minimum ? '🟡 Baixo' : '🟢 OK');
+                const statusClass = p.quantity === 0 ? 'danger' : (p.quantity <= p.minimum ? 'warning' : 'success');
+                tbody.innerHTML += `
+                    <tr>
+                        <td>#${p.id}</td>
+                        <td>${p.name}</td>
+                        <td>${p.category}</td>
+                        <td>R$ ${p.price.toFixed(2).replace('.', ',')}</td>
+                        <td><strong>${p.quantity}</strong></td>
+                        <td>${p.minimum}</td>
+                        <td><span class="badge badge-${statusClass}">${status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" onclick="editProduct(${p.id})">✏️ Editar</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.id})">🗑️ Deletar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Modals
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+
+        // Alert
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert show alert-${type}`;
+            alert.textContent = message;
+            alertContainer.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+
+        // Storage
+        function saveToStorage() {
+            localStorage.setItem('magbaterias-products', JSON.stringify(products));
+            localStorage.setItem('magbaterias-sales', JSON.stringify(sales));
+        }
+
+        function setupEventListeners() {
+            // Any additional event listeners
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
