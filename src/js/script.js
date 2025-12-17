@@ -6,6 +6,8 @@
         ];
 
         let sales = JSON.parse(localStorage.getItem('magbaterias-sales')) || [];
+        let customers = JSON.parse(localStorage.getItem('magbaterias-customers')) || [];
+        let selectedCustomerId = null;
         let cartItems = [];
         let editingProductId = null;
 
@@ -14,6 +16,8 @@
             updateDate();
             renderInventory();
             renderProductSelect();
+            renderCustomers();
+            renderCustomerSelect();
             updateDashboard();
             setupEventListeners();
             loadSalesHistory();
@@ -107,6 +111,41 @@
             });
 
             saveToStorage();
+        }
+
+        //Customer Management
+        function renderCustomers() {
+            const tbody = document.getElementById('customers-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            customers.forEach((c, index) => {
+                tbody.innerHTML += `
+                <tr>
+                    <td>${c.name}</td>
+                    <td>${c.document || '-'}</td>
+                    <td>${c.phone || '-'}</td>
+                    <td>${c.email || '-'}</td>
+                    <td>${c.address || '-'}</td>
+                    <td>
+                    <button class="btn btn-sm btn-secondary" onclick="editCustomer(${index})">✏️ Editar</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteCustomer(${index})">🗑️ Deletar</button>
+                    </td>
+                </tr>
+                `;
+            });
+
+            renderCustomerSelect();
+            saveToStorage();
+        }
+
+        function renderCustomerSelect() {
+            const select = document.getElementById('customer-select');
+            if (!select) return;
+            select.innerHTML = '<option value=\"\">-- Selecione um cliente --</option>';
+            customers.forEach((c, index) => {
+                select.innerHTML += `<option value=\"${index}\">${c.name}</option>`;
+            });
         }
 
         function renderProductSelect() {
@@ -266,8 +305,13 @@
 
         // Finalize Sale
         document.getElementById('finalize-sale-btn').addEventListener('click', () => {
-            const customerName = document.getElementById('customer-name').value.trim();
-            const customerDocument = document.getElementById('customer-document').value.trim();
+            if (selectedCustomerId === null) {
+                showAlert('Selecione um cliente cadastrado', 'warning');
+                return;
+            }
+            const customer = customers[selectedCustomerId];
+            const customerName = customer.name;
+            const customerDocument = customer.document || '';
 
             if (!customerName) {
                 showAlert('Digite o nome do cliente', 'warning');
@@ -306,6 +350,8 @@
 
             sales.push(sale);
             saveToStorage();
+            renderHistory();
+            updateReports();
             showSaleDetails(sale);
             clearSale();
             updateDashboard();
@@ -672,10 +718,36 @@
         function saveToStorage() {
             localStorage.setItem('magbaterias-products', JSON.stringify(products));
             localStorage.setItem('magbaterias-sales', JSON.stringify(sales));
+            localStorage.setItem('magbaterias-customers', JSON.stringify(customers));
         }
 
         function setupEventListeners() {
             // Any additional event listeners
+            document.getElementById('add-customer-btn')?.addEventListener('click', () => {
+                    editingCustomerIndex = null;
+                    document.getElementById('customer-form').reset();
+                    document.getElementById('customer-modal-title').textContent = 'Adicionar Cliente';
+                    openModal('customer-modal');
+                });
+
+                document.getElementById('new-customer-inline-btn')?.addEventListener('click', () => {
+                    editingCustomerIndex = null;
+                    document.getElementById('customer-form').reset();
+                    document.getElementById('customer-modal-title').textContent = 'Novo Cliente';
+                    openModal('customer-modal');
+                });
+
+                document.getElementById('customer-select')?.addEventListener('change', (e) => {
+                    const idx = e.target.value;
+                    selectedCustomerId = idx !== '' ? idx : null;
+                    const docInput = document.getElementById('customer-document');
+                    if (selectedCustomerId !== null) {
+                        const c = customers[selectedCustomerId];
+                        docInput.value = c.document || '';
+                    } else {
+                        docInput.value = '';
+                    }
+                });
         }
 
         // Initialize on load

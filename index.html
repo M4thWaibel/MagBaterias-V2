@@ -20,6 +20,7 @@
         <nav id="navigation">
             <button class="nav-btn active" data-section="dashboard">📊 Dashboard</button>
             <button class="nav-btn" data-section="inventory">📦 Estoque</button>
+            <button class="nav-btn" data-section="customers">👥 Clientes</button>
             <button class="nav-btn" data-section="sales">🛒 Vendas</button>
             <button class="nav-btn" data-section="history">📋 Histórico</button>
             <button class="nav-btn" data-section="reports">📈 Relatórios</button>
@@ -118,6 +119,34 @@
                 </div>
             </section>
 
+            <!-- Customers Section -->
+             <section id="customers" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>👥 Cadastro de Clientes</h2>
+                        <button class="btn btn-primary" id="add-customer-btn">+ Adicionar Cliente</button>
+                    </div>
+
+                    <div class="inventory-filters">
+                        <input type="text" id="search-customers" placeholder="🔍 Buscar cliente...">
+                    </div>
+
+                    <table id="customers-table">
+                        <thead>
+                            <tr>
+                            <th>Nome</th>
+                            <th>CPF/CNPJ</th>
+                            <th>Telefone</th>
+                            <th>E-mail</th>
+                            <th>Endereço</th>
+                            <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customers-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
             <!-- Sales Section -->
             <section id="sales" class="section">
                 <div class="card">
@@ -128,14 +157,17 @@
                     <div class="customer-info">
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Nome do Cliente</label>
-                                <input type="text" id="customer-name" placeholder="Digite o nome do cliente">
+                                <label>Cliente</label>
+                                <select id="customer-select">
+                                    <option value="">-- Selecione um cliente --</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label>CPF/CNPJ</label>
-                                <input type="text" id="customer-document" placeholder="00.000.000/0000-00">
+                                <input type="text" id="customer-document" placeholder="00.000.000/0000-00" disabled>
                             </div>
                         </div>
+                        <button class="btn btn-secondary btn-sm" id="new-customer-inline-btn">+ Novo Cliente</button>
                     </div>
 
                     <div class="form-group">
@@ -348,6 +380,48 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal for Customers Details -->
+     <div class="modal" id="customer-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="customer-modal-title">Adicionar Cliente</h3>
+                <button class="close-btn" onclick="closeModal('customer-modal')">×</button>
+            </div>
+            <form id="customer-form">
+                <div class="form-group">
+                    <label>Nome *</label>
+                    <input type="text" id="customer-name-input" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>CPF/CNPJ</label>
+                        <input type="text" id="customer-doc-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefone</label>
+                        <input type="text" id="customer-phone-input">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="email" id="customer-email-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Endereço</label>
+                        <input type="text" id="customer-address-input">
+                    </div>
+                </div>
+                <div style="display:flex;gap:16px;">
+                    <button type="submit" class="btn btn-primary btn-full">Salvar</button>
+                    <button type="button" class="btn btn-secondary btn-full" onclick="closeModal('customer-modal')">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
     <script src="src/js/script.js"></script>
 </body>
 </html>
